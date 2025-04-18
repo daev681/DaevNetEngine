@@ -30,3 +30,33 @@
    git clone https://github.com/daev681/daevengine.git
    cd daevengine
 ```
+
+```
+DaevNetEngine
+├─ Cargo.lock
+├─ Cargo.toml
+├─ README.md
+└─ src
+   ├─ config
+   │  ├─ config.rs
+   │  └─ mod.rs
+   ├─ engine
+   │  ├─ mod.rs
+   │  └─ runtime.rs
+   ├─ handler
+   │  ├─ echo_handler.rs
+   │  └─ mod.rs
+   ├─ lib.rs
+   ├─ main.rs
+   ├─ net
+   │  ├─ mod.rs
+   │  ├─ packet.rs
+   │  └─ tcp
+   │     ├─ connection.rs
+   │     ├─ listener.rs
+   │     └─ mod.rs
+   └─ util
+      ├─ buffer_pool.rs
+      └─ mod.rs
+
+```
