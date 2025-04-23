@@ -1,10 +1,6 @@
-mod engine;
-mod net;
-mod util;
-mod config;
-mod handler;
+use DaevNetEngine::engine::runtime::run_server;
 
 #[tokio::main]
 async fn main() {
-    engine::runtime::run_server().await;
+    run_server().await;
 }
