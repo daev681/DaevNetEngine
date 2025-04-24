@@ -1,0 +1,82 @@
+xml 클라
+
+```
+use DaevNetEngine::net::protocols::{
+    xml_packet::ChatMessage,
+    xml_protocol::XmlProtocol,
+    Protocol,
+};
+
+fn send_chat_message() {
+    // 클라이언트에서 채팅 메시지 생성
+    let msg = ChatMessage {
+        sender_id: 1,
+        message: "Hello, Server!".to_string(),
+    };
+
+    // XML 프로토콜로 직렬화
+    let proto = XmlProtocol { data: msg };
+    let serialized = proto.serialize();
+
+    // 직렬화된 데이터를 서버로 전송
+    // 여기서 `send_to_server`는 서버와의 네트워크 통신을 담당하는 함수라고 가정
+    send_to_server(&serialized);
+}
+```
+
+
+xml 서버
+
+```
+use DaevNetEngine::net::protocols::{xml_protocol::XmlProtocol, xml_packet::ChatMessage};
+
+fn handle_incoming_chat_packet(data: &[u8]) {
+    // XML 데이터를 역직렬화
+    let proto = XmlProtocol::<ChatMessage>::deserialize(data);
+
+    // 채팅 메시지 처리
+    let message = proto.get_data();
+    println!("Received chat message from player {}: {}", message.sender_id, message.message);
+}
+```
+
+
+프로토버퍼
+
+클라
+```
+use DaevNetEngine::net::protocols::{
+    protobuf_packet::UserScore,
+    protobuf_protocol::ProtoProtocol,
+    Protocol,
+};
+
+fn send_user_score() {
+    // 클라이언트에서 유저 점수 생성
+    let score = UserScore {
+        id: "player1".to_string(),
+        score: 1000,
+    };
+
+    // Protobuf 프로토콜로 직렬화
+    let proto = ProtoProtocol { data: score };
+    let serialized = proto.serialize();
+
+    // 직렬화된 데이터를 서버로 전송
+    // 여기서 `send_to_server`는 서버와의 네트워크 통신을 담당하는 함수라고 가정
+    send_to_server(&serialized);
+}
+```
+서버
+```
+use DaevNetEngine::net::protocols::{protobuf_protocol::ProtoProtocol, protobuf_packet::UserScore};
+
+fn handle_incoming_score_packet(data: &[u8]) {
+    // Protobuf 데이터를 역직렬화
+    let proto = ProtoProtocol::<UserScore>::deserialize(data);
+
+    // 유저 점수 처리
+    let score = proto.get_data();
+    println!("Received score for player {}: {}", score.id, score.score);
+}
+```
