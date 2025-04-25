@@ -1,6 +1,7 @@
-use DaevNetEngine::engine::runtime::run_server;
+use DaevNetEngine::engine::runtime::DaevRuntime;
 
 #[tokio::main]
 async fn main() {
-    run_server().await;
+    let runtime = DaevRuntime::new(8); // 워커 스레드 수 지정
+    runtime.start();
 }
