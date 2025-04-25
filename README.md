@@ -31,44 +31,17 @@
    cd daevengine
 ```
 
-```
-DaevNetEngine
-├─ Cargo.lock
-├─ Cargo.toml
-├─ README.md
-└─ src
-   ├─ config
-   │  ├─ config.rs
-   │  └─ mod.rs
-   ├─ engine
-   │  ├─ mod.rs
-   │  └─ runtime.rs
-   ├─ handler
-   │  ├─ echo_handler.rs
-   │  └─ mod.rs
-   ├─ lib.rs
-   ├─ main.rs
-   ├─ net
-   │  ├─ mod.rs
-   │  ├─ packet.rs
-   │  ├─ protocols
-   │  │  ├─ mod.rs
-   │  │  └─ protobuf.rs
-   │  └─ tcp
-   │     ├─ connection.rs
-   │     ├─ listener.rs
-   │     └─ mod.rs
-   └─ util
-      ├─ buffer_pool.rs
-      └─ mod.rs
 
-```
-```
 DaevNetEngine
 ├─ Cargo.lock
 ├─ Cargo.toml
 ├─ README.md
 └─ src
+   ├─ auth
+   │  ├─ auth_handler.rs
+   │  ├─ auth_packet.rs
+   │  ├─ README.md
+   │  └─ token.rs
    ├─ config
    │  ├─ config.rs
    │  └─ mod.rs
@@ -98,5 +71,3 @@ DaevNetEngine
    └─ util
       ├─ buffer_pool.rs
       └─ mod.rs
-
-```
