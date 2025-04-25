@@ -47,3 +47,34 @@ pub async fn start_tls_tcp_server(ip: &str, port: u16, cert_file: &str, key_file
         });
     }
 }
+
+
+pub async fn start_tcp_server(ip: &str, port: u16) -> tokio::io::Result<()> {
+    // TCP 리스너 생성
+    let listener = TcpListener::bind(format!("{}:{}", ip, port)).await?;
+    println!("[TCP] Listening on {}:{}", ip, port);
+
+    // 연결 제한 세마포어 (최대 100개 연결 제한)
+    let connection_limiter = Arc::new(Semaphore::new(100));
+
+    loop {
+        // 세마포어를 통해 동시 연결 수 제한
+        let permit = match connection_limiter.clone().acquire_owned().await {
+            Ok(p) => p,
+            Err(_) => {
+                eprintln!("[TCP] Failed to acquire connection permit");
+                continue;
+            }
+        };
+
+        // 새로운 연결 수락
+        let (socket, addr) = listener.accept().await?;
+        println!("[TCP] New connection from {:?}", addr);
+
+        // 새로운 연결 처리
+        tokio::spawn(async move {
+            let _permit = permit; // permit 사용을 끝낼 때까지 유효하도록
+            super::handler::handle_tcp_connection(socket, addr).await;
+        });
+    }
+}
