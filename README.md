@@ -31,6 +31,31 @@
    cd daevengine
 ```
 
+전체구조흐름
+
+sequenceDiagram
+    participant Client
+    participant Server (TCP Listener)
+    participant AuthService
+    participant SessionManager
+
+    Client ->> Server (TCP Listener): Connect
+    Client ->> Server (TCP Handler): Send AuthRequest (username, password)
+    Server ->> AuthService: authenticate()
+    AuthService -->> Server: AuthResponse (token)
+    Server ->> SessionManager: insert(token, username)
+    Server -->> Client: Send AuthResponse (success + token)
+
+    loop 이후 통신
+        Client ->> Server: Send packet with token
+        Server ->> SessionManager: validate(token)
+        alt token valid
+            Server -->> Client: 정상 처리
+        else token invalid
+            Server -->> Client: 에러 응답 (Unauthorized)
+        end
+    end
+
 
 
 DaevNetEngine

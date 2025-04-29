@@ -1,34 +1,26 @@
-// src/handler/connection_handler.rs
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::time::{timeout, Duration};
+use serde_json;
+use std::net::SocketAddr;
+use std::sync::Arc;
 
 use crate::auth::auth_handler::AuthService;
 use crate::auth::auth_packet::{AuthRequest, AuthResponse};
-use crate::auth::token::validate_token;
-use std::net::SocketAddr;
-use serde_json; // JSON 파싱용
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::TcpStream;
-use tokio::time::{timeout, Duration};
+use crate::session::SessionManager;
 
-use crate::auth::auth_handler::AuthService;
-use crate::auth::auth_packet::{AuthRequest, AuthResponse};
-use crate::auth::token::validate_token;
-use std::net::SocketAddr;
+const TOKEN_SIZE: usize = 36; // 상수화
 
-use serde_json; // JSON 파싱용
-/*
-클라이언트에서 아래와 같이보낸다.
+pub async fn handle_tcp_connection<S>(
+    mut socket: S,
+    addr: SocketAddr,
+    auth_service: Arc<AuthService>,
+    session_manager: Arc<SessionManager>,
+)
+where
+    S: AsyncRead + AsyncWrite + Unpin + Send + 'static,
 {
-  "username": "player1",
-  "password": "1234"
-}
-
-*/
-pub async fn handle_tcp_connection(mut socket: TcpStream, addr: SocketAddr) {
-    let mut buffer = [0u8; 1024];
-    let auth_service = AuthService::new(); // 임시 유저 DB
+    let mut buffer = [0u8; 4096];
 
     // 🧩 Step 1: 인증 요청 읽기
     let n = match timeout(Duration::from_secs(10), socket.read(&mut buffer)).await {
@@ -39,7 +31,7 @@ pub async fn handle_tcp_connection(mut socket: TcpStream, addr: SocketAddr) {
         Ok(Ok(n)) => n,
     };
 
-    // 🧩 Step 2: JSON 파싱 시도
+    // 🧩 Step 2: JSON 파싱
     let auth_req: Result<AuthRequest, _> = serde_json::from_slice(&buffer[..n]);
     let auth_req = match auth_req {
         Ok(req) => req,
@@ -58,7 +50,7 @@ pub async fn handle_tcp_connection(mut socket: TcpStream, addr: SocketAddr) {
     };
 
     // 🧩 Step 3: 인증 검증
-    let auth_res = auth_service.authenticate(auth_req);
+    let auth_res = auth_service.authenticate(auth_req.clone());
 
     if !auth_res.success {
         println!("[TCP] Authentication failed for {:?}", addr);
@@ -68,29 +60,48 @@ pub async fn handle_tcp_connection(mut socket: TcpStream, addr: SocketAddr) {
         return;
     }
 
-    // 인증 성공 응답
     println!("[TCP] Authentication success for {:?}", addr);
+
+    // 세션 등록
+    if let Some(token) = &auth_res.token {
+        session_manager.insert(token.clone(), auth_req.username.clone()).await;
+    }
+
+    // 인증 성공 응답
     if let Ok(json) = serde_json::to_vec(&auth_res) {
         if socket.write_all(&json).await.is_err() {
-            eprintln!("[TCP] Failed to send auth success response to {:?}", addr);
+            eprintln!("[TCP] Failed to send auth success to {:?}", addr);
             return;
         }
     }
 
-    // 🧩 Step 4: 정상 통신 루프
+    // 🧩 Step 4: 인증 이후 통신
     loop {
         let n = match timeout(Duration::from_secs(30), socket.read(&mut buffer)).await {
             Ok(Ok(0)) | Ok(Err(_)) | Err(_) => {
-                println!("[TCP] Connection with {:?} closed or timed out", addr);
+                println!("[TCP] Connection closed or timed out {:?}", addr);
                 break;
             }
             Ok(Ok(n)) => n,
         };
 
-        if socket.write_all(&buffer[..n]).await.is_err() {
-            eprintln!("[TCP] Failed to write to socket for {:?}", addr);
+        if n < TOKEN_SIZE {
+            eprintln!("[TCP] Packet too small from {:?}", addr);
+            break;
+        }
+
+        let (token_bytes, payload) = buffer[..n].split_at(TOKEN_SIZE);
+        let token = String::from_utf8_lossy(token_bytes);
+
+        if !session_manager.validate(&token).await {
+            println!("[TCP] Invalid or expired token from {:?}", addr);
+            break;
+        }
+
+        // 여기선 단순 echo
+        if socket.write_all(payload).await.is_err() {
+            eprintln!("[TCP] Failed to write to {:?}", addr);
             break;
         }
     }
 }
-
