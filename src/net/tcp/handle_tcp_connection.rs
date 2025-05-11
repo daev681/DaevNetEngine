@@ -7,7 +7,7 @@ use std::sync::Arc;
 
 use crate::auth::auth_handler::AuthService;
 use crate::auth::auth_packet::{AuthRequest, AuthResponse};
-use crate::session::SessionManager;
+use crate::auth::session::SessionManager;
 
 const TOKEN_SIZE: usize = 36; // 상수화
 
