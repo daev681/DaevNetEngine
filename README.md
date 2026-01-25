@@ -30,6 +30,38 @@
    git clone https://github.com/daev681/daevengine.git
    cd daevengine
 ```
+📌 Project Introduction
+DaevEngine is a high-performance network protocol engine designed to architect and implement optimized protocols for various types of real-time communication and data transmission. This engine provides custom TCP and UDP-based network protocols suitable for diverse application fields, including gaming, streaming services, file transfers, and chat systems.
+
+DaevEngine aims to maximize data transmission performance while ensuring packet loss prevention, low latency, and connection stability. It is specifically engineered to resolve common network issues encountered in game servers and real-time applications, researching and developing the most efficient data transfer methodologies across various environments.
+
+🚀 Technologies
+Rust: Utilized for high-performance network programming and memory-safe performance optimization.
+
+TCP/UDP: Experimental implementation of both connection-oriented (TCP) and connectionless (UDP) data transmission.
+
+Real-time Gaming & Streaming: Optimization of real-time data flow, providing features for packet loss recovery and low-latency processing.
+
+⚙️ Key Features
+TCP-based Protocol: Reliable, ordered data transmission for critical communication.
+
+UDP-based Protocol: Fast and efficient data transmission with custom handling for packet loss and jitter.
+
+Game State Synchronization: Transmission of real-time game states, event handling, and client synchronization.
+
+Streaming Optimization: Optimized protocol design for video/audio services with a focus on minimizing latency.
+
+Packet Loss Recovery: Research into efficient mechanisms to recover lost packets within UDP streams.
+
+Performance Optimization: Fine-tuning TCP/UDP stacks specifically for the demands of real-time applications.
+
+📝 Usage
+1. Rust Environment Setup: If Rust is not installed, please follow the Official Rust Installation Guide.
+
+2. Clone the Project:
+
+
+
 
 전체구조흐름
 
