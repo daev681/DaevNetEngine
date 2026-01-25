@@ -21,15 +21,21 @@
 - **패킷 손실 복구**: UDP에서 발생할 수 있는 패킷 손실을 복구하는 **효율적인 메커니즘** 연구
 - **성능 최적화**: TCP/UDP 프로토콜의 성능을 실시간 애플리케이션에 맞게 최적화
 
+
 ## 📝 사용 방법
 
 1. **Rust 환경 설정**: Rust가 설치되지 않았다면 [Rust 설치](https://www.rust-lang.org/) 가이드에 따라 설치합니다.
    
-2. **프로젝트 클론**:
+2. **프로젝트 클론** :
    ```bash
    git clone https://github.com/daev681/daevengine.git
    cd daevengine
-```
+    ```
+
+
+===========================================================================================================================================================================================
+
+
 📌 Project Introduction
 DaevEngine is a high-performance network protocol engine designed to architect and implement optimized protocols for various types of real-time communication and data transmission. This engine provides custom TCP and UDP-based network protocols suitable for diverse application fields, including gaming, streaming services, file transfers, and chat systems.
 
@@ -63,33 +69,9 @@ Performance Optimization: Fine-tuning TCP/UDP stacks specifically for the demand
 
 
 
-전체구조흐름
-
-sequenceDiagram
-    participant Client
-    participant Server (TCP Listener)
-    participant AuthService
-    participant SessionManager
-
-    Client ->> Server (TCP Listener): Connect
-    Client ->> Server (TCP Handler): Send AuthRequest (username, password)
-    Server ->> AuthService: authenticate()
-    AuthService -->> Server: AuthResponse (token)
-    Server ->> SessionManager: insert(token, username)
-    Server -->> Client: Send AuthResponse (success + token)
-
-    loop 이후 통신
-        Client ->> Server: Send packet with token
-        Server ->> SessionManager: validate(token)
-        alt token valid
-            Server -->> Client: 정상 처리
-        else token invalid
-            Server -->> Client: 에러 응답 (Unauthorized)
-        end
-    end
 
 
-
+```
 DaevNetEngine
 ├─ Cargo.lock
 ├─ Cargo.toml
@@ -132,3 +114,5 @@ DaevNetEngine
    └─ util
       ├─ buffer_pool.rs
       └─ mod.rs
+```
+
